@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="高考结束了。十个仪式，陪你把这三年的重量放下。">
+  <title>高考结束了 · 十个仪式</title>
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    (function () {
+      var ua = navigator.userAgent || '';
+      var wc = /MicroMessenger/i.test(ua);
+      var qq = !wc && (
+        /\bQQ\//i.test(ua) || /MQQBrowser/i.test(ua) || /QQClient/i.test(ua) ||
+        /QBCore/i.test(ua) || /V1_AND_SQ/i.test(ua) || /\bQQB\//i.test(ua) ||
+        /Qzone/i.test(ua) || /QQTheme/i.test(ua) || /QQInternational/i.test(ua)
+      );
+      if (wc || qq) {
+        window.__INAPP_BLOCKED__ = true;
+        document.documentElement.classList.add('inapp-blocked');
+      }
+    })();
+  </script>
+  <script src="inapp-block.js"></script>
+</head>
+<body>
+  <div class="inapp-block" id="inappBlock" role="alertdialog" aria-labelledby="inappBlockTitle" aria-modal="true">
+    <div class="inapp-block-box">
+      <p class="inapp-block-title" id="inappBlockTitle">微信 / QQ 暂不支持显示</p>
+      <p class="inapp-block-sub">请复制链接到浏览器中打开</p>
+      <p class="inapp-block-url" id="inappBlockUrl"></p>
+      <button class="btn-primary" id="inappBlockCopy" type="button">复制链接</button>
+      <p class="inapp-block-tip hidden" id="inappBlockCopied"></p>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="introPrompt" role="dialog" aria-labelledby="introPromptTitle" aria-modal="true">
+    <div class="modal-box intro-prompt-box">
+      <div id="introProtectedMount"></div>
+      <div class="intro-body" id="introPrivacyBody"></div>
+      <button class="btn-primary" id="introPromptOk" type="button" disabled>我知道了（3）</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="soundPrompt" role="dialog" aria-labelledby="soundPromptTitle" aria-modal="true">
+    <div class="modal-box sound-prompt-box">
+      <p class="modal-title" id="soundPromptTitle">开启声音，体验更完整</p>
+      <p class="sound-prompt-sub">雨声、推门、铃声……戴上耳机效果更好</p>
+      <button class="btn-primary" id="soundPromptEnable" type="button">开启声音</button>
+      <button class="btn-ghost sound-prompt-skip" id="soundPromptSkip" type="button">暂时静音</button>
+    </div>
+  </div>
+
+  <canvas id="ambientCanvas" aria-hidden="true"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="heartbeat-pulse" id="heartbeatPulse" aria-hidden="true"></div>
+
+  <div class="sky-stage" id="skyStage" aria-hidden="true"></div>
+
+  <div id="app">
+    <nav class="progress-nav" aria-label="仪式进度">
+      <div class="progress-dots" id="progressDots"></div>
+      <span class="progress-label" id="progressLabel">封面</span>
+      <button class="sound-toggle" id="soundToggle" type="button" aria-label="切换声音">🔇</button>
+    </nav>
+
+    <!-- 封面 -->
+    <section class="ritual active" data-ritual="0" data-theme="night">
+      <div class="ritual-bg ritual-bg--stars"></div>
+      <div class="ritual-content ritual-content--center">
+        <p class="eyebrow fade-in">2026 · 六月 · 某个下午</p>
+        <h1 class="title-hero fade-in delay-1">高考<br>结束了</h1>
+        <div class="type-block fade-in delay-2" id="coverType"></div>
+        <div class="name-gate" id="nameGate">
+          <p class="name-label">先告诉我——他们平时怎么叫你？</p>
+          <input class="name-input" id="nameInput" type="text" maxlength="12" placeholder="小名 / 昵称 / 名字" autocomplete="off" spellcheck="false" enterkeyhint="go">
+          <button class="btn-primary pulse" id="btnStart" type="button" aria-disabled="true">
+            <span>我准备好了</span><span class="btn-arrow">→</span>
+          </button>
+        </div>
+        <p class="hint">戴上耳机 · 关灯 · 昵称只在本页使用，不上传、不保存</p>
+      </div>
+    </section>
+
+    <!-- 仪式1：推门 -->
+    <section class="ritual" data-ritual="1" data-theme="dawn">
+      <div class="ritual-bg">
+        <div class="exam-hall" id="examHall">
+          <div class="hall-rows"></div>
+          <div class="hall-clock">16:58</div>
+        </div>
+        <div class="door-scene" id="doorScene">
+          <div class="door door--left"></div>
+          <div class="door door--right"></div>
+          <div class="door-light"></div>
+          <div class="door-handle-hint hidden" id="doorHint">按住 · 推</div>
+        </div>
+      </div>
+      <div class="ritual-content ritual-content--bottom">
+        <span class="ritual-tag">仪式一 · 推门</span>
+        <div class="type-block" id="doorType"></div>
+        <button class="btn-ghost hidden" id="btnDoorNext" type="button">走出去 →</button>
+      </div>
+    </section>
+
+    <!-- 仪式2：落笔 -->
+    <section class="ritual" data-ritual="2" data-theme="night">
+      <div class="ritual-bg ritual-bg--desk"></div>
+      <div class="ritual-content ritual-content--center">
+        <span class="ritual-tag">仪式二 · 落笔</span>
+        <div class="pen-moment" id="penMoment">
+          <div class="exam-paper" id="examPaper">
+            <div class="paper-header">2026 普通高等学校招生全国统一考试</div>
+            <div class="paper-lines">
+              <span class="paper-writing" id="paperWriting"></span><span class="paper-cursor" id="paperCursor">|</span>
+            </div>
+          </div>
+          <div class="pen-companion" id="penSpirit" aria-hidden="true">
+            <svg class="pen-sky-svg" viewBox="0 0 44 108" aria-hidden="true">
+              <defs>
+                <linearGradient id="penBarrel" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3d4f62"/>
+                  <stop offset="55%" stop-color="#2a3848"/>
+                  <stop offset="100%" stop-color="#1e2a36"/>
+                </linearGradient>
+                <linearGradient id="penNib" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#d4b878"/>
+                  <stop offset="100%" stop-color="#f5ecd8"/>
+                </linearGradient>
+              </defs>
+              <!-- 笔尖朝上，朝向卷面 -->
+              <path d="M17 26 L27 26 L22 10 L17 26 Z" fill="url(#penNib)"/>
+              <path d="M20 10 L22 10 L21 6 L20 10 Z" fill="#fffef5"/>
+              <rect x="16" y="26" width="12" height="52" rx="1.5" fill="url(#penBarrel)"/>
+              <rect x="15" y="52" width="14" height="14" rx="1" fill="#1a2530" opacity="0.45"/>
+              <rect x="16" y="78" width="12" height="16" rx="2" fill="#4a5a6a"/>
+              <rect x="17" y="80" width="10" height="4" rx="1" fill="#c9a85c"/>
+            </svg>
+            <p class="pen-companion-label">✦ 陪了你三年的那支笔</p>
+          </div>
+        </div>
+        <div class="type-block" id="penType"></div>
+        <button class="btn-primary hidden ritual-pen-btn" id="btnDropPen" type="button">让它休息</button>
+      </div>
+    </section>
+
+    <!-- 仪式3：卸甲 -->
+    <section class="ritual" data-ritual="3" data-theme="twilight">
+      <div class="ritual-bg ritual-bg--weight"></div>
+      <div class="ritual-content ritual-content--center">
+        <span class="ritual-tag">仪式三 · 卸甲</span>
+        <div class="type-block" id="weightType"></div>
+        <div class="weight-scene" id="weightScene">
+          <div class="weight-stack" id="weightStack"></div>
+          <p class="weight-story hidden" id="weightStory"></p>
+          <div class="weight-person" id="weightPerson">你</div>
+        </div>
+        <button class="btn-ghost hidden" id="btnWeightNext" type="button">继续 →</button>
+      </div>
+    </section>
+
+    <!-- 仪式4：许可 -->
+    <section class="ritual" data-ritual="4" data-theme="rain">
+      <div class="ritual-bg">
+        <canvas id="rainCanvas" aria-hidden="true"></canvas>
+        <canvas id="tearCanvas" aria-hidden="true"></canvas>
+      </div>
+      <div class="ritual-content ritual-content--center">
+        <span class="ritual-tag">仪式四 · 许可</span>
+        <div class="type-block" id="cryType"></div>
+        <button class="btn-soft hidden" id="btnAllowCry" type="button">……我想哭</button>
+        <p class="whisper hidden" id="cryWhisper"></p>
+        <button class="btn-ghost hidden" id="btnCryNext" type="button">好多了 →</button>
+      </div>
+    </section>
+
+    <!-- 仪式5：回望 -->
+    <section class="ritual" data-ritual="5" data-theme="memory">
+      <div class="ritual-bg ritual-bg--memory"></div>
+      <div class="ritual-content ritual-content--center">
+        <span class="ritual-tag">仪式五 · 回望</span>
+        <div class="memory-reel" id="memoryReel"></div>
+        <div class="memory-progress" id="memoryProgress">1 / 5</div>
+        <button class="btn-ghost hidden" id="btnMemoryNext" type="button">下一张 →</button>
+      </div>
+    </section>
+
+    <!-- 仪式6：寄语 -->
+    <section class="ritual" data-ritual="6" data-theme="letter">
+      <div class="ritual-bg ritual-bg--letter"></div>
+      <div class="ritual-content ritual-content--center">
+        <span class="ritual-tag">仪式六 · 寄语</span>
+        <div class="type-block" id="letterType"></div>
+        <div class="letter-prompts" id="letterPrompts"></div>
+        <div class="letter-box">
+          <textarea id="letterInput" maxlength="80" placeholder="写一句……只有你自己能看" rows="3"></textarea>
+          <span class="letter-count"><span id="letterCount">0</span>/80</span>
+        </div>
+        <button class="btn-primary" id="btnSendLetter" type="button" disabled>让它飘走</button>
+        <div class="floating-letters" id="floatingLetters" aria-hidden="true"></div>
+        <button class="btn-ghost hidden" id="btnLetterNext" type="button">继续 →</button>
+      </div>
+    </section>
+
+    <!-- 仪式7：致谢 -->
+    <section class="ritual" data-ritual="7" data-theme="gratitude">
+      <div class="ritual-bg ritual-bg--warm"></div>
+      <div class="ritual-content ritual-content--center">
+        <span class="ritual-tag">仪式七 · 致谢</span>
+        <div class="type-block" id="thanksType"></div>
+        <div class="thanks-grid" id="thanksGrid">
+          <button class="thanks-card" type="button" data-thanks="父母">
+            <span class="thanks-name">爸妈</span>
+            <span class="thanks-preview">他们也许说错了话</span>
+            <span class="thanks-full hidden">但那天送考，他们在门口站了很久，没敢多问一句。</span>
+          </button>
+          <button class="thanks-card" type="button" data-thanks="老师">
+            <span class="thanks-name">某一位老师</span>
+            <span class="thanks-preview">也许曾让你委屈</span>
+            <span class="thanks-full hidden">但你后来明白——TA 也是用笨拙的方式，想把你托上去。</span>
+          </button>
+          <button class="thanks-card" type="button" data-thanks="朋友">
+            <span class="thanks-name">同桌 / 朋友</span>
+            <span class="thanks-preview">一起熬过那些日子</span>
+            <span class="thanks-full hidden">传过的小纸条、分过的半块橡皮、一起骂过的早读——谢谢。</span>
+          </button>
+          <button class="thanks-card" type="button" data-thanks="自己">
+            <span class="thanks-name">你自己</span>
+            <span class="thanks-preview">最该被感谢的人</span>
+            <span class="thanks-full hidden">无数次想放弃，无数次又坐回书桌前。你没有逃跑。</span>
+          </button>
+        </div>
+        <button class="btn-ghost hidden" id="btnThanksDone" type="button">继续 →</button>
+      </div>
+    </section>
+
+    <!-- 仪式8：释放 -->
+    <section class="ritual" data-ritual="8" data-theme="release">
+      <div class="ritual-bg ritual-bg--release"></div>
+      <div class="ritual-content ritual-content--center">
+        <span class="ritual-tag">仪式八 · 释放</span>
+        <div class="type-block" id="releaseType"></div>
+        <div class="release-words" id="releaseWords"></div>
+        <button class="btn-release" id="btnRelease" type="button">
+          <span class="release-ring"></span>
+          <span class="release-text">按住 · 喊出来</span>
+          <span class="release-meter" id="releaseMeter"></span>
+        </button>
+        <p class="release-result hidden" id="releaseResult"></p>
+        <button class="btn-ghost hidden" id="btnReleaseNext" type="button">继续 →</button>
+      </div>
+      <canvas id="burstCanvas" aria-hidden="true"></canvas>
+    </section>
+
+    <!-- 仪式9：放飞 -->
+    <section class="ritual" data-ritual="9" data-theme="sky">
+      <div class="ritual-bg ritual-bg--sky"></div>
+      <div class="ritual-content ritual-content--center">
+        <span class="ritual-tag">仪式九 · 放飞</span>
+        <div class="type-block" id="wishType"></div>
+        <div class="wish-bubbles" id="wishBubbles"></div>
+        <p class="wish-chosen hidden" id="wishChosen" aria-live="polite"></p>
+        <p class="wish-hint">点一个气泡选中，或直接放飞——不必写</p>
+        <details class="wish-custom">
+          <summary>写一句自己的（可选）</summary>
+          <input class="wish-input" id="wishInput" type="text" maxlength="24" placeholder="我的心愿……" autocomplete="off">
+        </details>
+        <button class="btn-primary" id="btnLaunch" type="button">放飞万千愿望</button>
+        <button class="btn-primary hidden" id="btnWishNext" type="button">最后一个仪式 →</button>
+      </div>
+    </section>
+
+    <!-- 仪式10：新生 -->
+    <section class="ritual" data-ritual="10" data-theme="sunrise">
+      <div class="ritual-bg">
+        <div class="sunrise-scene">
+          <div class="sun"></div>
+          <div class="sun-rays"></div>
+          <div class="horizon"></div>
+        </div>
+      </div>
+      <div class="ritual-content ritual-content--center ritual-content--final">
+        <span class="ritual-tag">仪式十 · 新生</span>
+        <h2 class="title-ritual" id="finalTitle">欢迎回来</h2>
+        <div class="type-block" id="finalType"></div>
+        <div class="final-badge" id="finalBadge">
+          <span class="final-badge-icon">🎓</span>
+          <p id="finalBadgeText">十个仪式，全部走完了</p>
+        </div>
+        <button class="btn-primary" id="btnReplay" type="button">再走一遍</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="intro-privacy.js"></script>
+  <script src="intro-protected.js"></script>
+  <script src="intro-guard.js"></script>
+  <script src="content-generators.js"></script>
+  <script src="content-pools.js"></script>
+  <script src="audio-engine.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
