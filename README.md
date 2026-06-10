@@ -1,8 +1,3 @@
-# Celebrating-the-End-of-the-Gaokao
-高考结束庆祝
-
-
-
 # Celebrating the End of the Gaokao · 高考结束了
 
 > 一个纯前端的沉浸式情绪仪式网页：十个环节，陪刚走出考场的你，把这三年的重量慢慢放下。
